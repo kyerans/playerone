@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package playerone.services.v1;
+option go_package = "github.com/kyerans/playerone/api/services/v1;servicepb";
+
+service PlayerOneService {
+  rpc License(LicenseRequest) returns (LicenseResponse);
+  rpc LicenseRelease(LicenseReleaseRequest) returns (LicenseReleaseResponse);
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+}
+
+message RegisterRequest {
+  string kid = 1;
+  string key = 2;
+}
+
+message RegisterResponse {
+
+}
+
+message LicenseRequest {
+  repeated string kids = 1;
+  string type = 2;
+}
+
+message LicenseResponse {
+  message Key {
+    string kty = 1;
+    string k = 2;
+    string kid = 3;
+  }
+  repeated Key keys = 1;
+}
+
+message LicenseReleaseRequest {
+  repeated string kids = 1;
+  string type = 2;
+}
+
+message LicenseReleaseResponse {}
