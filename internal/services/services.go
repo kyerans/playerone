@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"encoding/base64"
 	"errors"
 
 	servicepb "github.com/kyerans/playerone/api/services/v1"
@@ -24,7 +23,7 @@ type Service struct {
 func (s *Service) Register(ctx context.Context,
 	req *servicepb.RegisterRequest) (*servicepb.RegisterResponse, error) {
 
-	s.repo.Set(req.GetKid(), req.GetKid())
+	s.repo.Set(req.GetKid(), req.GetKey())
 
 	return &servicepb.RegisterResponse{}, nil
 }
@@ -36,13 +35,13 @@ func (s *Service) License(ctx context.Context,
 
 	for _, kid := range req.Kids {
 		key := s.repo.Get(kid)
-		if key == nil {
+		if key == "" {
 			return nil, errors.New("key not found for kid: " + kid)
 		}
 
 		resp.Keys = append(resp.Keys, &servicepb.LicenseResponse_Key{
 			Kty: "oct",
-			K:   base64.StdEncoding.EncodeToString(key),
+			K:   key,
 			Kid: kid,
 		})
 	}

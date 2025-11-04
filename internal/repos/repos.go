@@ -1,19 +1,24 @@
 package repos
 
-import "sync"
+import (
+	"encoding/base64"
+	"encoding/hex"
+	"log"
+	"sync"
+)
 
 func New() *Repository {
 	return &Repository{
-		mapp: make(map[string][]byte),
+		mapp: make(map[string]string),
 	}
 }
 
 type Repository struct {
 	lock sync.Mutex
-	mapp map[string][]byte
+	mapp map[string]string
 }
 
-func (r *Repository) Get(k string) []byte {
+func (r *Repository) Get(k string) string {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
@@ -22,12 +27,25 @@ func (r *Repository) Get(k string) []byte {
 		return resp
 	}
 
-	return nil
+	return ""
 }
 
 func (r *Repository) Set(k, v string) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
-	r.mapp[k] = []byte(v)
+	bytes, err := hex.DecodeString(k)
+	if err != nil {
+		return
+	}
+	b64k := base64.RawURLEncoding.EncodeToString(bytes)
+
+	bytes, err = hex.DecodeString(v)
+	if err != nil {
+		return
+	}
+	b64v := base64.RawURLEncoding.EncodeToString(bytes)
+
+	log.Printf("[repo] save key=%v val=%v", b64k, b64v)
+	r.mapp[b64k] = b64v
 }
